@@ -1,43 +1,112 @@
 ﻿using ConsoleOrderExecutor.context;
 using ConsoleOrderExecutor.Products.DTOs;
+using ConsoleOrderExecutor.Products.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace ConsoleOrderExecutor.Products.Services
 {
     public interface IPublicService
     {
-        public bool CreateProduct(CreateProduct createProduct);
-        public bool ProductExist(string ean);
-        public bool ProductExist(int id);
-        public bool ModifyProduct(ModifyProduct modifyProduct);
-        public IEnumerable<GetProduct> GetProducts();
+        public Task<bool> CreateProduct(CreateProduct createProduct);
+        public Task<bool> ProductExist(string ean);
+        public Task<bool> ProductExist(int id);
+        public Task<bool> ModifyProduct(ModifyProduct modifyProduct);
+        public Task<IEnumerable<GetProduct>> GetProducts();
     }
     public class ProductService(ConsoleOrderExecutorDbContext context) : IPublicService
     {
         private readonly ConsoleOrderExecutorDbContext _context = context;
-
-        public bool CreateProduct(CreateProduct createProduct)
+        /// <summary>
+        /// Using transaction create new products.
+        /// </summary>
+        /// <param name="createProduct">Products parameters</param>
+        /// <returns>True if created, false if not.</returns>
+        public async Task<bool> CreateProduct(CreateProduct createProduct)
         {
-            throw new NotImplementedException();
+            using var trans = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var newProduct = new AppProduct
+                {
+                    ProductEan = createProduct.Ean,
+                    ProductName = createProduct.Name,
+                };
+
+                await _context.AppProducts.AddAsync(newProduct);
+                await _context.SaveChangesAsync();
+                await trans.CommitAsync();
+                return true;
+            }
+            catch (Exception ex) { 
+                Console.WriteLine(ex);
+                await trans.RollbackAsync();
+                return false;
+            }
         }
-
-        public IEnumerable<GetProduct> GetProducts()
+        /// <summary>
+        /// Query the database for products information.
+        /// </summary>
+        /// <returns>Return list of GetProduct objects.</returns>
+        public async Task<IEnumerable<GetProduct>> GetProducts()
         {
-            throw new NotImplementedException();
+            return await _context.AppProducts.Select(x => new GetProduct
+            {
+                Id = x.ProductId,
+                Name = x.ProductName,
+                Ean = x.ProductEan
+            }).ToListAsync();
         }
-
-        public bool ModifyProduct(ModifyProduct modifyProduct)
+        /// <summary>
+        /// Using transactions update product with given id.
+        /// </summary>
+        /// <param name="modifyProduct">New parameters of product. If parameter in given object is null then the value will not be changed.</param>
+        /// <returns>True if product was successfully modified, otherwise false.</returns>
+        public async Task<bool> ModifyProduct(ModifyProduct modifyProduct)
         {
-            throw new NotImplementedException();
+            using var trans = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                if (modifyProduct.Ean != null)
+                {
+                    await _context.AppProducts
+                        .Where(x => x.ProductId == modifyProduct.Id)
+                        .ExecuteUpdateAsync(setter => setter
+                            .SetProperty(s => s.ProductEan, modifyProduct.Ean));
+                }
+                if (modifyProduct.Ean != null)
+                {
+                    await _context.AppProducts
+                        .Where(x => x.ProductId == modifyProduct.Id)
+                        .ExecuteUpdateAsync(setter => setter
+                            .SetProperty(s => s.ProductName, modifyProduct.Name));
+                }
+                await _context.SaveChangesAsync();
+                await trans.CommitAsync();
+                return true;
+            }
+            catch (Exception ex) {
+                Console.WriteLine(ex);
+                await trans.RollbackAsync();
+                return false;
+            }
         }
-
-        public bool ProductExist(string ean)
+        /// <summary>
+        /// Check if product exist.
+        /// </summary>
+        /// <param name="ean">Searched ean.</param>
+        /// <returns>True if exist, false if not.</returns>
+        public async Task<bool> ProductExist(string ean)
         {
-            throw new NotImplementedException();
+            return await _context.AppProducts.AnyAsync(x => x.ProductEan == ean);
         }
-
-        public bool ProductExist(int id)
+        /// <summary>
+        /// Check if product exist.
+        /// </summary>
+        /// <param name="id">Searched id.</param>
+        /// <returns>True if exist, false if not.</returns>
+        public async Task<bool> ProductExist(int id)
         {
-            throw new NotImplementedException();
+            return await _context.AppProducts.AnyAsync(x => x.ProductId == id);
         }
     }
 }
