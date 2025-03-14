@@ -7,5 +7,6 @@ namespace ConsoleOrderExecutor.Orders.DTOs
         public string? DeliveryAddress { get; set; }
         public required int StatusId { get; set; }
         public required int PaymentOptionId { get; set; }
+        public IEnumerable<NewOrderProduct> Products { get; set; } = Enumerable.Empty<NewOrderProduct>();
     }
 }

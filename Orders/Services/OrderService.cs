@@ -1,31 +1,128 @@
 ﻿using ConsoleOrderExecutor.context;
 using ConsoleOrderExecutor.Orders.DTOs;
+using ConsoleOrderExecutor.Orders.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace ConsoleOrderExecutor.Orders.Services
 {
     public interface IOrderService
     {
-        public bool CreateOrder(CreateOrder createOrder);
-        public bool ModifyOrder(ModifyOrder modifyOrder);
-        public IEnumerable<GetOrder> GetOrders();
+        public Task<bool> CreateOrder(CreateOrder createOrder);
+        public Task<bool> ModifyOrder(ModifyOrder modifyOrder);
+        public Task<IEnumerable<GetOrder>> GetOrders();
     }
     public class OrderService(ConsoleOrderExecutorDbContext context) : IOrderService
     {
         private readonly ConsoleOrderExecutorDbContext _context = context;
-
-        public bool CreateOrder(CreateOrder createOrder)
+        /// <summary>
+        /// Using transactions create new order and then add existing items to it.
+        /// </summary>
+        /// <param name="createOrder">Parameters of new order.</param>
+        /// <returns>True if order was successfully created, otherwise false.</returns>
+        public async Task<bool> CreateOrder(CreateOrder createOrder)
         {
-            throw new NotImplementedException();
+            using var trans = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var newOrder = new AppOrder
+                {
+                    IsCompany = createOrder.IsCompany,
+                    DeliveryAddress = createOrder.DeliveryAddress,
+                    StatusId = createOrder.StatusId,
+                    PaymentOptionId = createOrder.PaymentOptionId,
+                };
+                await _context.AppOrders.AddAsync(newOrder);
+                await _context.SaveChangesAsync();
+
+                var orderItems = createOrder.Products.Select(x => new OrderProduct
+                {
+                    OrderId = newOrder.OrderId,
+                    ProductId = x.Id,
+                    Price = x.Price,
+                }).ToList();
+
+                await _context.OrderProducts.AddRangeAsync(orderItems);
+                await _context.SaveChangesAsync();
+                await trans.CommitAsync();
+                return true;
+            }
+            catch (Exception ex) { 
+                Console.WriteLine(ex);
+                await trans.RollbackAsync();
+                return false;
+            }
         }
-
-        public IEnumerable<GetOrder> GetOrders()
+        /// <summary>
+        /// Query database to receive information about orders.
+        /// </summary>
+        /// <returns>List of GetOrder objects.</returns>
+        public async Task<IEnumerable<GetOrder>> GetOrders()
         {
-            throw new NotImplementedException();
+            return await _context.AppOrders.Select(x => new GetOrder
+            {
+                Id = x.OrderId,
+                OrderValue = x.OrderProducts.Sum(a => a.Price),
+                Products = x.OrderProducts.Select(a => new Products.DTOs.GetProduct
+                {
+                    Id = a.ProductId,
+                    Name = a.Product.ProductName,
+                    Ean = a.Product.ProductEan,
+                }),
+                OrderType = x.IsCompany ? "Company" : "Physical person",
+                DeliveryAddress = x.DeliveryAddress ?? "Null",
+                StatusName = x.Status.StatusName,
+                PaymentOption = x.PaymentOption.OptionName,
+            }).ToListAsync();
         }
-
-        public bool ModifyOrder(ModifyOrder modifyOrder)
+        /// <summary>
+        /// Using transactions modify order.
+        /// </summary>
+        /// <param name="modifyOrder">New order parameters. If parameter in given object is null then the value will not be changed.</param>
+        /// <returns>True if successfully created, otherwise false.</returns>
+        public async Task<bool> ModifyOrder(ModifyOrder modifyOrder)
         {
-            throw new NotImplementedException();
+            using var trans = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                if (modifyOrder.IsCompany != null)
+                {
+                    await _context.AppOrders
+                        .Where(x => x.OrderId == modifyOrder.Id)
+                    .ExecuteUpdateAsync(setter => setter
+                            .SetProperty(s => s.IsCompany, modifyOrder.IsCompany));
+                }
+
+                await _context.AppOrders
+                        .Where(x => x.OrderId == modifyOrder.Id)
+                    .ExecuteUpdateAsync(setter => setter
+                            .SetProperty(s => s.DeliveryAddress, modifyOrder.DeliveryAddress));
+
+                if (modifyOrder.StatusId != null)
+                {
+                    await _context.AppOrders
+                        .Where(x => x.OrderId == modifyOrder.Id)
+                    .ExecuteUpdateAsync(setter => setter
+                            .SetProperty(s => s.StatusId, modifyOrder.StatusId));
+                }
+
+                if (modifyOrder.PaymentOptionId != null)
+                {
+                    await _context.AppOrders
+                        .Where(x => x.OrderId == modifyOrder.Id)
+                    .ExecuteUpdateAsync(setter => setter
+                            .SetProperty(s => s.PaymentOptionId, modifyOrder.PaymentOptionId));
+                }
+
+                await _context.SaveChangesAsync();
+                await trans.CommitAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                await trans.RollbackAsync();
+                return false;
+            }
         }
     }
 }
