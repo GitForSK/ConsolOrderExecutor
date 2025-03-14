@@ -13,7 +13,7 @@ namespace ConsoleOrderExecutor.ConsoleFunction.Utils
         /// <param name="text">Text describing what kind of parameter user should type?</param>
         /// <param name="check">Predicate that will check if value is correct.</param>
         /// <param name="result">Out parameter holding received value. If exist was typed it will be null.</param>
-        /// <returns>True if user passed value or false if user want to exit procedure.</returns>
+        /// <returns>True if user want to exist or false if user passed value.</returns>
         public bool GetParameter(string text, Predicate<string?> check, out string? result)
         {
             Console.WriteLine(text);
@@ -23,12 +23,12 @@ namespace ConsoleOrderExecutor.ConsoleFunction.Utils
                 if ((value ?? "") == "exit")
                 {
                     result = null;
-                    return false;
+                    return true;
                 }
                 if (check(value))
                 {
                     result = value;
-                    return true;
+                    return false;
                 }
                 else
                 {

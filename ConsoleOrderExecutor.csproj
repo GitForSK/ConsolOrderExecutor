@@ -10,8 +10,6 @@
   <ItemGroup>
     <Folder Include="db\logs\" />
     <Folder Include="Documents\" />
-    <Folder Include="Products\" />
-    <Folder Include="Orders\" />
   </ItemGroup>
 
   <ItemGroup>
