@@ -10,6 +10,8 @@ namespace ConsoleOrderExecutor.Orders.Services
         public Task<bool> CreateOrder(CreateOrder createOrder);
         public Task<bool> ModifyOrder(ModifyOrder modifyOrder);
         public Task<IEnumerable<GetOrder>> GetOrders();
+        public Task<int> GetStatusId(string name);
+        public Task<IEnumerable<GetPaymentOption>> GetPaymentOptions();
     }
     public class OrderService(ConsoleOrderExecutorDbContext context) : IOrderService
     {
@@ -46,11 +48,21 @@ namespace ConsoleOrderExecutor.Orders.Services
                 await trans.CommitAsync();
                 return true;
             }
-            catch (Exception ex) { 
+            catch (Exception ex)
+            {
                 Console.WriteLine(ex);
                 await trans.RollbackAsync();
                 return false;
             }
+        }
+        /// <summary>
+        /// Query for id of status with given name.
+        /// </summary>
+        /// <param name="name">status name</param>
+        /// <returns>Id of status or default int.</returns>
+        public async Task<int> GetStatusId(string name)
+        {
+            return await _context.OrderStatuses.Where(x => x.StatusName == name).Select(x => x.StatusId).FirstOrDefaultAsync();
         }
         /// <summary>
         /// Query database to receive information about orders.
@@ -72,6 +84,18 @@ namespace ConsoleOrderExecutor.Orders.Services
                 DeliveryAddress = x.DeliveryAddress ?? "Null",
                 StatusName = x.Status.StatusName,
                 PaymentOption = x.PaymentOption.OptionName,
+            }).ToListAsync();
+        }
+        /// <summary>
+        /// Query database for status information.
+        /// </summary>
+        /// <returns>List of GetPaymentOption objects.</returns>
+        public async Task<IEnumerable<GetPaymentOption>> GetPaymentOptions()
+        {
+            return await _context.PaymentOptions.Select(x => new GetPaymentOption
+            {
+                Id = x.PaymentOptionId,
+                Name = x.OptionName
             }).ToListAsync();
         }
         /// <summary>

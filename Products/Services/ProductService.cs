@@ -5,15 +5,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ConsoleOrderExecutor.Products.Services
 {
-    public interface IPublicService
+    public interface IProductService
     {
         public Task<bool> CreateProduct(CreateProduct createProduct);
         public Task<bool> ProductExist(string ean);
         public Task<bool> ProductExist(int id);
+        public Task<int> GetProductId(string ean);
         public Task<bool> ModifyProduct(ModifyProduct modifyProduct);
         public Task<IEnumerable<GetProduct>> GetProducts();
     }
-    public class ProductService(ConsoleOrderExecutorDbContext context) : IPublicService
+    public class ProductService(ConsoleOrderExecutorDbContext context) : IProductService
     {
         private readonly ConsoleOrderExecutorDbContext _context = context;
         /// <summary>
@@ -37,11 +38,21 @@ namespace ConsoleOrderExecutor.Products.Services
                 await trans.CommitAsync();
                 return true;
             }
-            catch (Exception ex) { 
+            catch (Exception ex)
+            {
                 Console.WriteLine(ex);
                 await trans.RollbackAsync();
                 return false;
             }
+        }
+        /// <summary>
+        /// Query for id of product with given ean.
+        /// </summary>
+        /// <param name="ean">Product ean.</param>
+        /// <returns>Id of product or default int.</returns>
+        public async Task<int> GetProductId(string ean)
+        {
+            return await _context.AppProducts.Where(x => x.ProductEan == ean).Select(x => x.ProductId).FirstOrDefaultAsync();
         }
         /// <summary>
         /// Query the database for products information.
@@ -84,7 +95,8 @@ namespace ConsoleOrderExecutor.Products.Services
                 await trans.CommitAsync();
                 return true;
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 Console.WriteLine(ex);
                 await trans.RollbackAsync();
                 return false;
