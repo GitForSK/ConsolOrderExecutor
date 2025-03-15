@@ -152,9 +152,60 @@ namespace ConsoleOrderExecutor.ConsoleFunction
             throw new NotImplementedException();
         }
 
-        public void ShowOrders()
+        public async void ShowOrders()
         {
-            throw new NotImplementedException();
+            int pagination = 5;
+            static void showOrder(GetOrder order) {
+                Console.WriteLine($"id: {order.Id} value: {order.OrderValue} PLN status: {order.StatusName} payment option: {order.PaymentOption}");
+                Console.WriteLine($"type: {order.OrderType} address: {order.DeliveryAddress}");
+                Console.WriteLine("Products:");
+                var prod = order.Products.Select(x => $"id: {x.Id} ean: {x.Ean} name: {x.Name} price: {x.Price}");
+                Console.WriteLine(String.Join("\\n", prod));
+                Console.WriteLine(Environment.NewLine);
+            };
+            Console.WriteLine("Loading orders..");
+
+            var orders = await _orderService.GetOrders();
+            var ordersCount = orders.Count();
+
+            Console.WriteLine($"There are {ordersCount} orders.");
+
+            if (ordersCount < pagination)
+            {
+                foreach (var order in orders)
+                {
+                    showOrder(order);
+                }
+            }
+            else
+            {
+                var dicOrders = orders.Index().ToDictionary();
+                int counter = 0;
+                while (counter < ordersCount)
+                {
+                    dicOrders.TryGetValue(counter, out var order);
+                    if (order == null)
+                    {
+                        Console.WriteLine("Error: Found null order.");
+                    }
+                    else
+                    {
+                        showOrder(order);
+                    }
+                    if (counter != 0 && counter % pagination == 0)
+                    {
+                        Console.WriteLine("If you want to exit write exit. If you want to see more click enter or write anything.");
+                        var userInput = Console.ReadLine();
+                        if (userInput == "exit")
+                        {
+                            return;
+                        }
+                    }
+                    counter++;
+                }
+            }
+
+            Console.WriteLine("End of orders.");
         }
         /// <summary>
         /// Retrieve product list from database and then show the first 5 of them. If user do not write exit, shown another five till the end of the list.

@@ -74,11 +74,12 @@ namespace ConsoleOrderExecutor.Orders.Services
             {
                 Id = x.OrderId,
                 OrderValue = x.OrderProducts.Sum(a => a.Price),
-                Products = x.OrderProducts.Select(a => new Products.DTOs.GetProduct
+                Products = x.OrderProducts.Select(a => new GetOrderProduct
                 {
                     Id = a.ProductId,
                     Name = a.Product.ProductName,
                     Ean = a.Product.ProductEan,
+                    Price = a.Price,
                 }),
                 OrderType = x.IsCompany ? "Company" : "Physical person",
                 DeliveryAddress = x.DeliveryAddress ?? "Null",
