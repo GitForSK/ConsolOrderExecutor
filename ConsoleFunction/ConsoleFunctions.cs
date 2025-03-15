@@ -142,9 +142,76 @@ namespace ConsoleOrderExecutor.ConsoleFunction
             throw new NotImplementedException();
         }
 
-        public void PassOrderToWarehouse()
+        public async void PassOrderToWarehouse()
         {
-            throw new NotImplementedException();
+            bool wantToExit = false;
+
+            Console.WriteLine("You can exit the process at any time, by writing exit.");
+
+            string getOrderIdText = "Please write the id of the order that you want to move to warehouse.";
+            wantToExit = _consoleUtils.GetParameter(getOrderIdText, (a) => Regex.IsMatch((a ?? ""), "\\d+"), out var orderIdStr);
+            if (wantToExit) return;
+
+            Console.WriteLine("Checking order..");
+            int orderId = Int32.Parse(orderIdStr);
+            bool orderExist = await _orderService.OrderExist(orderId);
+
+            if (!orderExist)
+            {
+                Console.WriteLine($"Error: The order with id {orderId} do not exist in database.");
+                return;
+            }
+
+            decimal orderValue = await _orderService.GetOrderValue(orderId);
+
+            int paymentOptionIdForValidation = await _orderService.GetPaymentOptionId("Gotówka przy odbiorze");
+            if (paymentOptionIdForValidation == 0)
+            {
+                Console.WriteLine("Error: Could not find payment status with the name Gotówka przy odbiorze");
+                return;
+            }
+
+            string newOrderStatus = "W magazynie";
+            int orderPaymentOptionId = await _orderService.GetOrderPaymentOptionId(orderId);
+            if (orderValue > 2500 && (paymentOptionIdForValidation == orderPaymentOptionId)) {
+                Console.WriteLine("Waring: The order have payment option set as Gotówka przy odbiorze and it value exceed 2500. The status will be changed to Zwrócono do klienta.");
+                newOrderStatus = "Zwrócono do klienta";
+            }
+
+            int statusNewId = await _orderService.GetStatusId("Nowe");
+            if (statusNewId == 0)
+            {
+                Console.WriteLine("Error: Could not find status with the name Nowe");
+                return;
+            }
+            int currentStatusId = await _orderService.GetOrderStatusId(orderId);
+
+            if (currentStatusId != statusNewId)
+            {
+                Console.WriteLine("Error: Cannot change given order status, because the order status is not Nowe.");
+                return;
+            }
+
+            int newStatusId = await _orderService.GetStatusId(newOrderStatus);
+            if (newStatusId == 0)
+            {
+                Console.WriteLine($"Error: Could not find status with the name {newOrderStatus}");
+                return;
+            }
+
+            bool statusHasChanged = await _orderService.ModifyOrder(new ModifyOrder
+            {
+                Id = orderId,
+                StatusId = newStatusId,
+            });
+
+            if (statusHasChanged)
+            {
+                Console.WriteLine($"Order status with id {orderId} has been changed to {newOrderStatus}.");
+            } else
+            {
+                Console.WriteLine($"Error: Could not change order status with id {orderId}.");
+            }
         }
         /// <summary>
         /// Attempt to change order status from W magazynie to W wysyłce.

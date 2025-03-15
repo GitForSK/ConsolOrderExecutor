@@ -14,6 +14,9 @@ namespace ConsoleOrderExecutor.Orders.Services
         public Task<IEnumerable<GetPaymentOption>> GetPaymentOptions();
         public Task<bool> OrderExist(int orderId);
         public Task<int> GetOrderStatusId(int orderId);
+        public Task<decimal> GetOrderValue(int orderId);
+        public Task<int> GetPaymentOptionId(string name);
+        public Task<int> GetOrderPaymentOptionId(int orderId);
     }
     public class OrderService(ConsoleOrderExecutorDbContext context) : IOrderService
     {
@@ -168,6 +171,33 @@ namespace ConsoleOrderExecutor.Orders.Services
         public async Task<int> GetOrderStatusId(int orderId)
         {
             return await _context.AppOrders.Where(x => x.OrderId == orderId).Select(x => x.StatusId).FirstAsync();
+        }
+        /// <summary>
+        /// Query for value of order with given id.
+        /// </summary>
+        /// <param name="orderId">Order id.</param>
+        /// <returns>Value of the order.</returns>
+        public async Task<decimal> GetOrderValue(int orderId)
+        {
+            return await _context.OrderProducts.Where(x => x.OrderId == orderId).SumAsync(x => x.Price);
+        }
+        /// <summary>
+        /// Query database for payment option id with given name.
+        /// </summary>
+        /// <param name="name">Name of payment option (case sensitive).</param>
+        /// <returns>Payment option id or 0 if not found.</returns>
+        public async Task<int> GetPaymentOptionId(string name)
+        {
+            return await _context.PaymentOptions.Where(x => x.OptionName == name).Select(x => x.PaymentOptionId).FirstOrDefaultAsync();
+        }
+        /// <summary>
+        /// Query database for payment option id of given order.
+        /// </summary>
+        /// <param name="orderId">Order id.</param>
+        /// <returns>Payment option id or default int if not found.</returns>
+        public async Task<int> GetOrderPaymentOptionId(int orderId)
+        {
+            return await _context.AppOrders.Where(x => x.OrderId == orderId).Select(x => x.PaymentOptionId).FirstOrDefaultAsync();
         }
     }
 }
