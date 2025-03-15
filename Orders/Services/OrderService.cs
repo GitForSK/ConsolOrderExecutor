@@ -12,6 +12,8 @@ namespace ConsoleOrderExecutor.Orders.Services
         public Task<IEnumerable<GetOrder>> GetOrders();
         public Task<int> GetStatusId(string name);
         public Task<IEnumerable<GetPaymentOption>> GetPaymentOptions();
+        public Task<bool> OrderExist(int orderId);
+        public Task<int> GetOrderStatusId(int orderId);
     }
     public class OrderService(ConsoleOrderExecutorDbContext context) : IOrderService
     {
@@ -148,6 +150,24 @@ namespace ConsoleOrderExecutor.Orders.Services
                 await trans.RollbackAsync();
                 return false;
             }
+        }
+        /// <summary>
+        /// Check if order with given id exists.
+        /// </summary>
+        /// <param name="orderId">Order id.</param>
+        /// <returns>True if exist, false otherwise.</returns>
+        public async Task<bool> OrderExist(int orderId)
+        {
+            return await _context.AppOrders.AnyAsync(x => x.OrderId == orderId);
+        }
+        /// <summary>
+        /// Query for status id of given order.
+        /// </summary>
+        /// <param name="orderId">Order id.</param>
+        /// <returns>Status id of given order or 0 if not found.</returns>
+        public async Task<int> GetOrderStatusId(int orderId)
+        {
+            return await _context.AppOrders.Where(x => x.OrderId == orderId).Select(x => x.StatusId).FirstAsync();
         }
     }
 }

@@ -146,10 +146,63 @@ namespace ConsoleOrderExecutor.ConsoleFunction
         {
             throw new NotImplementedException();
         }
-
-        public void SendOrder()
+        /// <summary>
+        /// Attempt to change order status from W magazynie to W wysyłce.
+        /// </summary>
+        public async void SendOrder()
         {
-            throw new NotImplementedException();
+            bool wantToExit = false;
+
+            Console.WriteLine("You can exit the process at any time, by writing exit.");
+
+            string getOrderIdText = "Please write the id of the order that you want to send.";
+            wantToExit = _consoleUtils.GetParameter(getOrderIdText, (a) => Regex.IsMatch((a ?? ""), "\\d+"), out var orderIdStr);
+            if (wantToExit) return;
+
+            Console.WriteLine("Checking order..");
+            int orderId = Int32.Parse(orderIdStr);
+            bool orderExist = await _orderService.OrderExist(orderId);
+
+            if (!orderExist)
+            {
+                Console.WriteLine($"Error: The order with id {orderId} do not exist in database.");
+                return;
+            }
+
+            int statusWarehouseId = await _orderService.GetStatusId("W magazynie");
+            if (statusWarehouseId == 0)
+            {
+                Console.WriteLine("Error: Could not find status with the name W magazynie");
+                return;
+            }
+            int currentStatusId = await _orderService.GetOrderStatusId(orderId);
+
+            if (currentStatusId != statusWarehouseId) {
+                Console.WriteLine("Error: Cannot change given order status, because the order status is not W magazynie.");
+                return;
+            }
+
+            int statusSendId = await _orderService.GetStatusId("W wysyłce");
+            if (statusSendId == 0)
+            {
+                Console.WriteLine("Error: Could not find status with the name W wysyłce");
+                return;
+            }
+
+            Thread changeStatus = new Thread(new ThreadStart(async () =>
+            {
+                Thread.Sleep(5000);
+                await _orderService.ModifyOrder(new ModifyOrder
+                {
+                    Id = orderId,
+                    StatusId = statusSendId,
+                });
+            }));
+
+            changeStatus.Start();
+
+            Console.WriteLine($"The order has been sent for shipment. Please check later if status of order {orderId} has been changed.");
+
         }
         /// <summary>
         /// Retrieve order list from database and then show the first 5 of them. If user do not write exit, shown another five till the end of the list.
