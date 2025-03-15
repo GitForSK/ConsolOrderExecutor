@@ -156,7 +156,9 @@ namespace ConsoleOrderExecutor.ConsoleFunction
         {
             throw new NotImplementedException();
         }
-
+        /// <summary>
+        /// Retrieve product list from database and then show the first 5 of them. If user do not write exit, shown another five till the end of the list.
+        /// </summary>
         public async void ShowProducts()
         {
             int pagination = 5;
