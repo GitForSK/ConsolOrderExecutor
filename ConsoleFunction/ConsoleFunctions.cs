@@ -23,6 +23,9 @@ namespace ConsoleOrderExecutor.ConsoleFunction
         private readonly IOrderService _orderService = orderService;
         private readonly IProductService _productService = productService;
         private readonly string pricePattern = "^\\d\\.\\d{2}$";
+        /// <summary>
+        /// Try to receive parameters for user to create new order. Then write the outcome of action in console.
+        /// </summary>
         public async void CreateNewOrder()
         {
             Console.WriteLine("Process of creating new order started. If you want to exit process write exit at any step.");
@@ -154,9 +157,49 @@ namespace ConsoleOrderExecutor.ConsoleFunction
             throw new NotImplementedException();
         }
 
-        public void ShowProducts()
+        public async void ShowProducts()
         {
-            throw new NotImplementedException();
+            int pagination = 5;
+            Console.WriteLine("Loading products..");
+
+            var products = await _productService.GetProducts();
+            var prodCount = products.Count();
+
+            Console.WriteLine($"There are {prodCount} products.");
+
+            if (prodCount < pagination)
+            {
+                foreach (var product in products)
+                {
+                    Console.WriteLine($"id: {product.Id} ean: {product.Ean} name: {product.Name}");
+                }
+            } else
+            {
+                var newProducts = products.Index().ToDictionary();
+                int counter = 0;
+                while (counter < prodCount)
+                {
+                    newProducts.TryGetValue(counter, out var product);
+                    if (product == null)
+                    {
+                        Console.WriteLine("Error: Found null product.");
+                    } else
+                    {
+                        Console.WriteLine($"id: {product.Id} ean: {product.Ean} name: {product.Name}");
+                    }
+                    if (counter != 0 && counter % pagination == 0)
+                    {
+                        Console.WriteLine("If you want to exit write exit. If you want to see click enter or write anything.");
+                        var userInput = Console.ReadLine();
+                        if (userInput == "exit") {
+                            return;
+                        }
+                    }
+                    counter++;
+                }
+            }
+
+            Console.WriteLine("End of products.");
         }
     }
 }
