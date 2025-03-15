@@ -53,4 +53,4 @@ VALUES
 INSERT INTO Payment_Option (option_name)
 VALUES
 ('Karta'),
-('Gotówka orzy odbiorze');
+('Gotówka przy odbiorze');
