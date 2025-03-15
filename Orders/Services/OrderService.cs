@@ -63,7 +63,7 @@ namespace ConsoleOrderExecutor.Orders.Services
         /// <summary>
         /// Query for id of status with given name.
         /// </summary>
-        /// <param name="name">status name</param>
+        /// <param name="name">Status name (case sensitive).</param>
         /// <returns>Id of status or default int.</returns>
         public async Task<int> GetStatusId(string name)
         {
