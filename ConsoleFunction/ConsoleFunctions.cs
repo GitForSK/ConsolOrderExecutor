@@ -242,7 +242,7 @@ namespace ConsoleOrderExecutor.ConsoleFunction
                     }
                     if (counter != 0 && counter % pagination == 0)
                     {
-                        Console.WriteLine("If you want to exit write exit. If you want to see click enter or write anything.");
+                        Console.WriteLine("If you want to exit write exit. If you want to see more click enter or write anything.");
                         var userInput = Console.ReadLine();
                         if (userInput == "exit") {
                             return;
