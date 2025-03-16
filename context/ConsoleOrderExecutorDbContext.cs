@@ -1,21 +1,22 @@
 ﻿using ConsoleOrderExecutor.Orders.Models;
 using ConsoleOrderExecutor.Products.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace ConsoleOrderExecutor.context;
 
 public partial class ConsoleOrderExecutorDbContext : DbContext
 {
-    private string _connectionString;
-    public ConsoleOrderExecutorDbContext(string connectionString)
+    private readonly IConfiguration _config;
+    public ConsoleOrderExecutorDbContext(IConfiguration config)
     {
-        _connectionString = connectionString;
+        _config = config;
     }
 
-    public ConsoleOrderExecutorDbContext(string connectionString, DbContextOptions<ConsoleOrderExecutorDbContext> options)
+    public ConsoleOrderExecutorDbContext(IConfiguration config, DbContextOptions<ConsoleOrderExecutorDbContext> options)
         : base(options)
     {
-        _connectionString = connectionString;
+        _config = config;
     }
 
     public virtual DbSet<AppOrder> AppOrders { get; set; }
@@ -29,7 +30,7 @@ public partial class ConsoleOrderExecutorDbContext : DbContext
     public virtual DbSet<PaymentOption> PaymentOptions { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer(_connectionString);
+        => optionsBuilder.UseSqlServer(_config["ConnectionString"]);
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

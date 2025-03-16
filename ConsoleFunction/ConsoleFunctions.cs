@@ -10,7 +10,7 @@ namespace ConsoleOrderExecutor.ConsoleFunction
 {
     public interface IConsoleFunctions
     {
-        public void CreateNewOrder();
+        public Task CreateNewOrder();
         public void PassOrderToWarehouse();
         public void SendOrder();
         public void ShowOrders();
@@ -26,7 +26,7 @@ namespace ConsoleOrderExecutor.ConsoleFunction
         /// <summary>
         /// Try to receive parameters for user to create new order. Then write the outcome of action in console.
         /// </summary>
-        public async void CreateNewOrder()
+        public async Task CreateNewOrder()
         {
             Console.WriteLine("Process of creating new order started. If you want to exit process write exit at any step.");
             bool wantToExit = false;
