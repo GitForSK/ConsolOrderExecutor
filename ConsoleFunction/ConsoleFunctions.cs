@@ -22,7 +22,6 @@ namespace ConsoleOrderExecutor.ConsoleFunction
         private readonly IConsoleUtils _consoleUtils = consoleUtils;
         private readonly IOrderService _orderService = orderService;
         private readonly IProductService _productService = productService;
-        private readonly string pricePattern = "^\\d\\.\\d{2}$";
         /// <summary>
         /// Try to receive parameters for user to create new order. Then write the outcome of action in console.
         /// </summary>
@@ -31,7 +30,7 @@ namespace ConsoleOrderExecutor.ConsoleFunction
             Console.WriteLine("Process of creating new order started. If you want to exit process write exit at any step.");
             bool wantToExit = false;
 
-            string isCompanyText = "Is this order for company or physical person? Type 1 if yes or 0 if false.";
+            string isCompanyText = "Is this order for company or physical person? Type 1 if company or 0 if person.";
             wantToExit = _consoleUtils.GetParameter(isCompanyText, (a) => a != null && (a == "1" || a == "0"), out var isCompanyStr);
             if (wantToExit) return;
 
@@ -41,7 +40,7 @@ namespace ConsoleOrderExecutor.ConsoleFunction
 
             var paymentList = await _orderService.GetPaymentOptions();
             var paymentInfoInString = paymentList.Select(x => x.Id + " - " + x.Name);
-            string paymentText = "Please choose the payment option, by writing its number.\\n" + String.Join("\\n", paymentInfoInString);
+            string paymentText = "Please choose the payment option, by writing its number.\n" + String.Join("\n", paymentInfoInString);
             wantToExit = _consoleUtils.GetParameter(paymentText, (a) => (a ?? "").All(Char.IsDigit) && paymentList.Any(x => x.Id == Int32.Parse(a ?? "-1")), out var paymentStr);
             if (wantToExit) return;
 
@@ -72,7 +71,7 @@ namespace ConsoleOrderExecutor.ConsoleFunction
                     if (wantToExit) return;
                 }
 
-                wantToExit = _consoleUtils.GetParameter(priceText, (a) => Regex.IsMatch(a ?? "", pricePattern), out var priceStr);
+                wantToExit = _consoleUtils.GetParameter(priceText, (a) => Regex.IsMatch(a ?? "", "(\\d+)||(\\d+\\.\\d{2})"), out var priceStr);
                 if (wantToExit) return;
 
                 Console.WriteLine("Adding product...");
