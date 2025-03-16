@@ -136,10 +136,69 @@ namespace ConsoleOrderExecutor.ConsoleFunction
                 Console.WriteLine("Failed to create order.");
             }
         }
-
-        public void ModifyProduct()
+        /// <summary>
+        /// Take user input and modify the given product.
+        /// </summary>
+        public async void ModifyProduct()
         {
-            throw new NotImplementedException();
+            bool wantToExit = false;
+
+            Console.WriteLine("You can exit the process at any time, by writing exit.");
+
+            string getProductIdText = "Please write the id of the product that you want to modify.";
+            wantToExit = _consoleUtils.GetParameter(getProductIdText, (a) => Regex.IsMatch((a ?? ""), "\\d+"), out var productIdStr);
+            if (wantToExit) return;
+
+            int productId = Int32.Parse(productIdStr);
+            bool productExist = await _productService.ProductExist(productId);
+            if (!productExist)
+            {
+                Console.WriteLine($"Error: The product with id {productId} do not exists.");
+                return;
+            }
+
+            var productOldInfo = await _productService.GetProductInfo(productId);
+            if (productOldInfo == null)
+            {
+                Console.WriteLine("Error: Could not find product information form database.");
+                return;
+            }
+
+            Console.WriteLine($"Old product name: {productOldInfo.Name}");
+
+            string getNewNameText = "Pass new product name or nothing if you do not want to change it.";
+            wantToExit = _consoleUtils.GetParameter(getNewNameText, (a) => (a ?? "").Length < 150, out var newName);
+            if (wantToExit) return;
+
+            Console.WriteLine($"Old product ean: {productOldInfo.Ean}");
+
+            string getNewEanText = "Pass new product ean or nothing if you do not want to change it.";
+            wantToExit = _consoleUtils.GetParameter(getNewEanText, (a) => (a ?? "").Length < 13, out var newEan);
+            if (wantToExit) return;
+
+            if (newEan != null)
+            {
+                bool eanAlreadyExist = await _productService.ProductExist(newEan);
+                if (eanAlreadyExist)
+                {
+                    Console.WriteLine("Error: Product with this ean already exist.");
+                    return;
+                }
+            }
+
+            bool isModified = await _productService.ModifyProduct(new ModifyProduct { 
+                Id = productId,
+                Name = newName,
+                Ean = newEan,
+            });
+
+            if (isModified)
+            {
+                Console.WriteLine($"Successfully changed the product with id {productId}.");
+            } else
+            {
+                Console.WriteLine("Error: Could not change product.");
+            }
         }
         /// <summary>
         /// Take input from user to change order status to W magazynie. If order value exceed 2500 and payment option equal Gotówka przy odbiorze the satus will be changed to Zwrócone do klienta.

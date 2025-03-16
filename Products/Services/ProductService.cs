@@ -13,6 +13,7 @@ namespace ConsoleOrderExecutor.Products.Services
         public Task<int> GetProductId(string ean);
         public Task<bool> ModifyProduct(ModifyProduct modifyProduct);
         public Task<IEnumerable<GetProduct>> GetProducts();
+        public Task<GetProductInfo?> GetProductInfo(int id);
     }
     public class ProductService(ConsoleOrderExecutorDbContext context) : IProductService
     {
@@ -54,6 +55,16 @@ namespace ConsoleOrderExecutor.Products.Services
         {
             return await _context.AppProducts.Where(x => x.ProductEan == ean).Select(x => x.ProductId).FirstOrDefaultAsync();
         }
+
+        public async Task<GetProductInfo?> GetProductInfo(int id)
+        {
+            return await _context.AppProducts.Where(x => x.ProductId == id).Select(x => new GetProductInfo
+            {
+                Name = x.ProductName,
+                Ean = x.ProductEan
+            }).FirstOrDefaultAsync();
+        }
+
         /// <summary>
         /// Query the database for products information.
         /// </summary>
