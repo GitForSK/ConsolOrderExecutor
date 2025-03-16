@@ -3,6 +3,7 @@ using ConsoleOrderExecutor.ConsoleFunction.Utils;
 using ConsoleOrderExecutor.context;
 using ConsoleOrderExecutor.Orders.Services;
 using ConsoleOrderExecutor.Products.Services;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -29,12 +30,15 @@ try
     builder.Services.AddSingleton<IOrderService, OrderService>();
     builder.Services.AddSingleton<IConsoleUtils, ConsoleUtils>();
     builder.Services.AddSingleton<IConsoleFunctions, ConsoleFunctions>();
-    builder.Logging.ClearProviders();
+    builder.Logging.AddFilter("ConsoleOrderExecutor.Program", LogLevel.Information);
+    builder.Logging.AddFilter("Microsoft", LogLevel.Warning);
+    builder.Logging.AddFilter("System", LogLevel.Warning);
 
     using IHost host = builder.Build();
-    await host.StartAsync();
 
     RunApp(host);
+
+    await host.RunAsync();
 
     static async void RunApp(IHost host)
     {
