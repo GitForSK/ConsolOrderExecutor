@@ -95,7 +95,7 @@ namespace ConsoleOrderExecutor.Products.Services
                         .ExecuteUpdateAsync(setter => setter
                             .SetProperty(s => s.ProductEan, modifyProduct.Ean));
                 }
-                if (modifyProduct.Ean != null)
+                if (modifyProduct.Name != null)
                 {
                     await _context.AppProducts
                         .Where(x => x.ProductId == modifyProduct.Id)
