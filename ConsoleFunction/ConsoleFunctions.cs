@@ -380,7 +380,7 @@ namespace ConsoleOrderExecutor.ConsoleFunction
                     {
                         showOrder(order);
                     }
-                    if (counter != 0 && counter % pagination == 0)
+                    if (counter != 0 && counter % (pagination - 1) == 0)
                     {
                         Console.WriteLine("If you want to exit write exit. If you want to see more click enter or write anything.");
                         var userInput = Console.ReadLine();
@@ -428,7 +428,7 @@ namespace ConsoleOrderExecutor.ConsoleFunction
                     {
                         Console.WriteLine($"id: {product.Id} ean: {product.Ean} name: {product.Name}");
                     }
-                    if (counter != 0 && counter % pagination == 0)
+                    if (counter != 0 && counter % (pagination - 1) == 0)
                     {
                         Console.WriteLine("If you want to exit write exit. If you want to see more click enter or write anything.");
                         var userInput = Console.ReadLine();
