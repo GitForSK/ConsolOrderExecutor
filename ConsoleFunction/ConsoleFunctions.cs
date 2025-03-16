@@ -343,19 +343,20 @@ namespace ConsoleOrderExecutor.ConsoleFunction
         {
             int pagination = 5;
             static void showOrder(GetOrder order) {
-                Console.WriteLine($"id: {order.Id} value: {order.OrderValue} PLN status: {order.StatusName} payment option: {order.PaymentOption}");
-                Console.WriteLine($"type: {order.OrderType} address: {order.DeliveryAddress}");
+                Console.WriteLine($"Order id: {order.Id}");
+                Console.WriteLine($"Value: {order.OrderValue} PLN; Status: {order.StatusName}; Payment option: {order.PaymentOption};");
+                Console.WriteLine($"Type: {order.OrderType}; Address: {order.DeliveryAddress};");
                 Console.WriteLine("Products:");
-                var prod = order.Products.Select(x => $"id: {x.Id} ean: {x.Ean} name: {x.Name} price: {x.Price}");
+                var prod = order.Products.Select(x => $"\tId: {x.Id} Ean: {x.Ean} Name: {x.Name} Price: {x.Price}");
                 Console.WriteLine(String.Join("\n", prod));
-                Console.WriteLine(Environment.NewLine);
+                Console.WriteLine("\n");
             };
             Console.WriteLine("Loading orders..");
 
             var orders = await _orderService.GetOrders();
             var ordersCount = orders.Count();
 
-            Console.WriteLine($"There are {ordersCount} orders.");
+            Console.WriteLine($"There are {ordersCount} orders.\n");
 
             if (ordersCount < pagination)
             {
