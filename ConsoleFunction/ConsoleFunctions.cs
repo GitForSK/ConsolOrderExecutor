@@ -11,11 +11,11 @@ namespace ConsoleOrderExecutor.ConsoleFunction
     public interface IConsoleFunctions
     {
         public Task CreateNewOrder();
-        public void PassOrderToWarehouse();
-        public void SendOrder();
-        public void ShowOrders();
-        public void ShowProducts();
-        public void ModifyProduct();
+        public Task PassOrderToWarehouse();
+        public Task SendOrder();
+        public Task ShowOrders();
+        public Task ShowProducts();
+        public Task ModifyProduct();
     }
     public class ConsoleFunctions(IConsoleUtils consoleUtils, IOrderService orderService, IProductService productService) : IConsoleFunctions
     {
@@ -138,7 +138,7 @@ namespace ConsoleOrderExecutor.ConsoleFunction
         /// <summary>
         /// Take user input and modify the given product.
         /// </summary>
-        public async void ModifyProduct()
+        public async Task ModifyProduct()
         {
             bool wantToExit = false;
 
@@ -202,7 +202,7 @@ namespace ConsoleOrderExecutor.ConsoleFunction
         /// <summary>
         /// Take input from user to change order status to W magazynie. If order value exceed 2500 and payment option equal Gotówka przy odbiorze the satus will be changed to Zwrócone do klienta.
         /// </summary>
-        public async void PassOrderToWarehouse()
+        public async Task PassOrderToWarehouse()
         {
             bool wantToExit = false;
 
@@ -276,7 +276,7 @@ namespace ConsoleOrderExecutor.ConsoleFunction
         /// <summary>
         /// Attempt to change order status from W magazynie to W wysyłce.
         /// </summary>
-        public async void SendOrder()
+        public async Task SendOrder()
         {
             bool wantToExit = false;
 
@@ -334,7 +334,7 @@ namespace ConsoleOrderExecutor.ConsoleFunction
         /// <summary>
         /// Retrieve order list from database and then show the first 5 of them. If user do not write exit, shown another five till the end of the list.
         /// </summary>
-        public async void ShowOrders()
+        public async Task ShowOrders()
         {
             int pagination = 5;
             static void showOrder(GetOrder order) {
@@ -342,7 +342,7 @@ namespace ConsoleOrderExecutor.ConsoleFunction
                 Console.WriteLine($"type: {order.OrderType} address: {order.DeliveryAddress}");
                 Console.WriteLine("Products:");
                 var prod = order.Products.Select(x => $"id: {x.Id} ean: {x.Ean} name: {x.Name} price: {x.Price}");
-                Console.WriteLine(String.Join("\\n", prod));
+                Console.WriteLine(String.Join("\n", prod));
                 Console.WriteLine(Environment.NewLine);
             };
             Console.WriteLine("Loading orders..");
@@ -392,7 +392,7 @@ namespace ConsoleOrderExecutor.ConsoleFunction
         /// <summary>
         /// Retrieve product list from database and then show the first 5 of them. If user do not write exit, shown another five till the end of the list.
         /// </summary>
-        public async void ShowProducts()
+        public async Task ShowProducts()
         {
             int pagination = 5;
             Console.WriteLine("Loading products..");
