@@ -115,7 +115,12 @@ namespace ConsoleOrderExecutor.ConsoleFunction
                 isAddOn = nextStep == "next";
             }
             Console.WriteLine("Creating order...");
-            int statusId = await _orderService.GetStatusId("Nowe");
+            string newStatusName = address == null || address == "" ? "Błąd" : "Nowe";
+            if (address == null)
+            {
+                Console.WriteLine("Warning: Address do not posses value. Order status will be moved to Błąd.");
+            }
+            int statusId = await _orderService.GetStatusId(newStatusName);
             var newOrder = new CreateOrder
             {
                 IsCompany = isCompanyStr == "1",
