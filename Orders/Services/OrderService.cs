@@ -122,10 +122,13 @@ namespace ConsoleOrderExecutor.Orders.Services
                             .SetProperty(s => s.IsCompany, modifyOrder.IsCompany));
                 }
 
-                await _context.AppOrders
+                if (modifyOrder.DeliveryAddress != null)
+                {
+                    await _context.AppOrders
                         .Where(x => x.OrderId == modifyOrder.Id)
                     .ExecuteUpdateAsync(setter => setter
                             .SetProperty(s => s.DeliveryAddress, modifyOrder.DeliveryAddress));
+                }
 
                 if (modifyOrder.StatusId != null)
                 {
