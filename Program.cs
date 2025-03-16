@@ -3,7 +3,6 @@ using ConsoleOrderExecutor.ConsoleFunction.Utils;
 using ConsoleOrderExecutor.context;
 using ConsoleOrderExecutor.Orders.Services;
 using ConsoleOrderExecutor.Products.Services;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -15,7 +14,7 @@ try
     string currentPath = Directory.GetCurrentDirectory();
     int binIndex = currentPath.IndexOf("bin") - 1;
     currentPath = currentPath.Substring(0, binIndex);
-    
+
     HostApplicationBuilder builder = Host.CreateApplicationBuilder();
     var config = builder.Configuration.SetBasePath(currentPath)
         .AddJsonFile("appsettings.json", false, true).Build();
@@ -55,7 +54,8 @@ try
 
         string prompText = "\nPlease write the number of the operation that you want to execute. If you want to display list of operation write help.";
 
-        while (!wantToExit) {
+        while (!wantToExit)
+        {
             Console.WriteLine(prompText);
             string? userInput = Console.ReadLine();
             if (userInput == null)
@@ -103,7 +103,8 @@ try
                         Console.WriteLine("Error: The operation with this number do not exist.");
                         break;
                 }
-            } else
+            }
+            else
             {
                 Console.WriteLine("Error: Invalid input. If you want to see the list of operation write help.");
             }
@@ -111,6 +112,7 @@ try
     }
 
 }
-catch (Exception ex) { 
+catch (Exception ex)
+{
     Console.WriteLine(ex.ToString());
 }

@@ -1,7 +1,4 @@
-﻿
-using ConsoleOrderExecutor.Products.DTOs;
-
-namespace ConsoleOrderExecutor.Orders.DTOs
+﻿namespace ConsoleOrderExecutor.Orders.DTOs
 {
     public class GetOrder
     {

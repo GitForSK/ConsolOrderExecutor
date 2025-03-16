@@ -190,7 +190,8 @@ namespace ConsoleOrderExecutor.ConsoleFunction
                 }
             }
 
-            bool isModified = await _productService.ModifyProduct(new ModifyProduct { 
+            bool isModified = await _productService.ModifyProduct(new ModifyProduct
+            {
                 Id = productId,
                 Name = newName == "" ? null : newName,
                 Ean = newEan == "" ? null : newEan,
@@ -199,7 +200,8 @@ namespace ConsoleOrderExecutor.ConsoleFunction
             if (isModified)
             {
                 Console.WriteLine($"Successfully changed the product with id {productId}.");
-            } else
+            }
+            else
             {
                 Console.WriteLine("Error: Could not change product.");
             }
@@ -238,7 +240,8 @@ namespace ConsoleOrderExecutor.ConsoleFunction
 
             string newOrderStatus = "W magazynie";
             int orderPaymentOptionId = await _orderService.GetOrderPaymentOptionId(orderId);
-            if (orderValue > 2500 && (paymentOptionIdForValidation == orderPaymentOptionId)) {
+            if (orderValue > 2500 && (paymentOptionIdForValidation == orderPaymentOptionId))
+            {
                 Console.WriteLine("Waring: The order have payment option set as Gotówka przy odbiorze and it value exceed 2500. The status will be changed to Zwrócono do klienta.");
                 newOrderStatus = "Zwrócono do klienta";
             }
@@ -273,7 +276,8 @@ namespace ConsoleOrderExecutor.ConsoleFunction
             if (statusHasChanged)
             {
                 Console.WriteLine($"Order status with id {orderId} has been changed to {newOrderStatus}.");
-            } else
+            }
+            else
             {
                 Console.WriteLine($"Error: Could not change order status with id {orderId}.");
             }
@@ -309,7 +313,8 @@ namespace ConsoleOrderExecutor.ConsoleFunction
             }
             int currentStatusId = await _orderService.GetOrderStatusId(orderId);
 
-            if (currentStatusId != statusWarehouseId) {
+            if (currentStatusId != statusWarehouseId)
+            {
                 Console.WriteLine("Error: Cannot change given order status, because the order status is not W magazynie.");
                 return;
             }
@@ -342,7 +347,8 @@ namespace ConsoleOrderExecutor.ConsoleFunction
         public async Task ShowOrders()
         {
             int pagination = 5;
-            static void showOrder(GetOrder order) {
+            static void showOrder(GetOrder order)
+            {
                 Console.WriteLine($"Order id: {order.Id}");
                 Console.WriteLine($"Value: {order.OrderValue} PLN; Status: {order.StatusName}; Payment option: {order.PaymentOption};");
                 Console.WriteLine($"Type: {order.OrderType}; Address: {order.DeliveryAddress};");
@@ -414,7 +420,8 @@ namespace ConsoleOrderExecutor.ConsoleFunction
                 {
                     Console.WriteLine($"id: {product.Id} ean: {product.Ean} name: {product.Name}");
                 }
-            } else
+            }
+            else
             {
                 var newProducts = products.Index().ToDictionary();
                 int counter = 0;
@@ -424,7 +431,8 @@ namespace ConsoleOrderExecutor.ConsoleFunction
                     if (product == null)
                     {
                         Console.WriteLine("Error: Found null product.");
-                    } else
+                    }
+                    else
                     {
                         Console.WriteLine($"id: {product.Id} ean: {product.Ean} name: {product.Name}");
                     }
@@ -432,7 +440,8 @@ namespace ConsoleOrderExecutor.ConsoleFunction
                     {
                         Console.WriteLine("If you want to exit write exit. If you want to see more click enter or write anything.");
                         var userInput = Console.ReadLine();
-                        if (userInput == "exit") {
+                        if (userInput == "exit")
+                        {
                             return;
                         }
                     }
