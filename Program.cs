@@ -30,12 +30,12 @@ try
     builder.Services.AddSingleton<IConsoleFunctions, ConsoleFunctions>();
 
     using IHost host = builder.Build();
+    await host.StartAsync();
 
     RunApp(host);
 
     static async void RunApp(IHost host)
     {
-        host.Run();
         using IServiceScope serviceScope = host.Services.CreateScope();
         IServiceProvider serviceProvider = serviceScope.ServiceProvider;
         IConsoleFunctions? consoleFunctions = serviceProvider.GetService<IConsoleFunctions>() ?? throw new Exception("Could not load the console functions.");
