@@ -141,7 +141,9 @@ namespace ConsoleOrderExecutor.ConsoleFunction
         {
             throw new NotImplementedException();
         }
-
+        /// <summary>
+        /// Take input from user to change order status to W magazynie. If order value exceed 2500 and payment option equal Gotówka przy odbiorze the satus will be changed to Zwrócone do klienta.
+        /// </summary>
         public async void PassOrderToWarehouse()
         {
             bool wantToExit = false;
