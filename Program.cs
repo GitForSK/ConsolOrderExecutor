@@ -31,13 +31,12 @@ try
 
     using IHost host = builder.Build();
 
-    RunApp(host.Services);
+    RunApp(host);
 
-    await host.RunAsync();
-
-    static async void RunApp(IServiceProvider hostProvider)
+    static async void RunApp(IHost host)
     {
-        using IServiceScope serviceScope = hostProvider.CreateScope();
+        host.Run();
+        using IServiceScope serviceScope = host.Services.CreateScope();
         IServiceProvider serviceProvider = serviceScope.ServiceProvider;
         IConsoleFunctions? consoleFunctions = serviceProvider.GetService<IConsoleFunctions>() ?? throw new Exception("Could not load the console functions.");
         IConsoleUtils? consoleUtils = serviceProvider.GetService<IConsoleUtils>() ?? throw new Exception("Could not load the console utils.");
@@ -63,6 +62,7 @@ try
             if (userInput == "exit")
             {
                 Console.WriteLine("Exiting the application...");
+                await host.StopAsync();
                 return;
             }
             if (userInput == "help")
