@@ -35,12 +35,11 @@ try
 
     using IHost host = builder.Build();
 
-    RunApp(host);
+    await RunApp(host);
 
-    await host.RunAsync();
-
-    static async void RunApp(IHost host)
+    static async Task RunApp(IHost host)
     {
+        await host.StartAsync();
         using IServiceScope serviceScope = host.Services.CreateScope();
         IServiceProvider serviceProvider = serviceScope.ServiceProvider;
         IConsoleFunctions? consoleFunctions = serviceProvider.GetService<IConsoleFunctions>() ?? throw new Exception("Could not load the console functions.");
