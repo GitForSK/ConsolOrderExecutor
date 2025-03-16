@@ -6,6 +6,7 @@ using ConsoleOrderExecutor.Products.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using System.Text.RegularExpressions;
 
 try
@@ -28,6 +29,7 @@ try
     builder.Services.AddSingleton<IOrderService, OrderService>();
     builder.Services.AddSingleton<IConsoleUtils, ConsoleUtils>();
     builder.Services.AddSingleton<IConsoleFunctions, ConsoleFunctions>();
+    builder.Logging.ClearProviders();
 
     using IHost host = builder.Build();
     await host.StartAsync();
