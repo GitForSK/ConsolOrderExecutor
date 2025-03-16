@@ -116,7 +116,7 @@ namespace ConsoleOrderExecutor.ConsoleFunction
             }
             Console.WriteLine("Creating order...");
             string newStatusName = address == null || address == "" ? "Błąd" : "Nowe";
-            if (address == null)
+            if (address == null || address == "")
             {
                 Console.WriteLine("Warning: Address do not posses value. Order status will be moved to Błąd.");
             }
