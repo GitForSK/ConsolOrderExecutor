@@ -71,7 +71,7 @@ namespace ConsoleOrderExecutor.ConsoleFunction
                     if (wantToExit) return;
                 }
 
-                wantToExit = _consoleUtils.GetParameter(priceText, (a) => Regex.IsMatch(a ?? "", "(\\d+)||(\\d+\\.\\d{2})"), out var priceStr);
+                wantToExit = _consoleUtils.GetParameter(priceText, (a) => Regex.IsMatch(a ?? "", "(\\d+)|(\\d+\\.\\d{2})"), out var priceStr);
                 if (wantToExit) return;
 
                 Console.WriteLine("Adding product...");
