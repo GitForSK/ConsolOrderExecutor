@@ -54,7 +54,7 @@ namespace ConsoleOrderExecutor.ConsoleFunction
 
             while (isAddOn)
             {
-                wantToExit = _consoleUtils.GetParameter(eanText, (a) => a != null && (a ?? "").Length < 13, out var newEan);
+                wantToExit = _consoleUtils.GetParameter(eanText, (a) => a != null && a.All(Char.IsDigit) && (a ?? "").Length < 13, out var newEan);
                 if (wantToExit) return;
                 Console.WriteLine("Checking if ean exist...");
                 var eanExist = await _productService.ProductExist(newEan);
