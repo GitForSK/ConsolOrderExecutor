@@ -177,7 +177,7 @@ namespace ConsoleOrderExecutor.ConsoleFunction
             Console.WriteLine($"Old product ean: {productOldInfo.Ean}");
 
             string getNewEanText = "Pass new product ean or nothing if you do not want to change it.";
-            wantToExit = _consoleUtils.GetParameter(getNewEanText, (a) => (a ?? "").Length < 13, out var newEan);
+            wantToExit = _consoleUtils.GetParameter(getNewEanText, (a) => ((a ?? "").All(Char.IsDigit)) && (a ?? "").Length < 13, out var newEan);
             if (wantToExit) return;
 
             if (newEan != null)
@@ -192,8 +192,8 @@ namespace ConsoleOrderExecutor.ConsoleFunction
 
             bool isModified = await _productService.ModifyProduct(new ModifyProduct { 
                 Id = productId,
-                Name = newName,
-                Ean = newEan,
+                Name = newName == "" ? null : newName,
+                Ean = newEan == "" ? null : newEan,
             });
 
             if (isModified)
