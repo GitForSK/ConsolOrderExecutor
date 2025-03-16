@@ -30,7 +30,6 @@ try
     builder.Services.AddSingleton<IOrderService, OrderService>();
     builder.Services.AddSingleton<IConsoleUtils, ConsoleUtils>();
     builder.Services.AddSingleton<IConsoleFunctions, ConsoleFunctions>();
-    builder.Logging.AddFilter("ConsoleOrderExecutor.Program", LogLevel.Information);
     builder.Logging.AddFilter("Microsoft", LogLevel.Warning);
     builder.Logging.AddFilter("System", LogLevel.Warning);
 
