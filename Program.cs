@@ -80,6 +80,21 @@ try
                     case 1:
                         await consoleFunctions.CreateNewOrder();
                         break;
+                    case 2:
+                        await consoleFunctions.PassOrderToWarehouse();
+                        break;
+                    case 3:
+                        await consoleFunctions.SendOrder();
+                        break;
+                    case 4:
+                        await consoleFunctions.ShowOrders();
+                        break;
+                    case 5:
+                        await consoleFunctions.ShowProducts();
+                        break;
+                    case 6:
+                        await consoleFunctions.ModifyProduct();
+                        break;
                     default:
                         Console.WriteLine("Error: The operation with this number do not exist.");
                         break;
