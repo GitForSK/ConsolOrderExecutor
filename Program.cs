@@ -17,11 +17,16 @@ try
 
     HostApplicationBuilder builder = Host.CreateApplicationBuilder();
     var config = builder.Configuration.SetBasePath(currentPath)
-        .AddJsonFile("appsettings.json", false, true).Build();
+        .AddJsonFile("appsettings.json", optional: true, true)
+        .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, true)
+        .Build();
 
     if (config["ConnectionString"] == null || config["ConnectionString"] == "")
     {
-        throw new Exception("Error: Could not find connection string in appsettings.json file.");
+        Console.WriteLine("The appsettings file and/or database connection string has not been detected.\nPlease pass the database connection string.");
+        string? connString = Console.ReadLine();
+        if (string.IsNullOrEmpty(connString)) throw new Exception("Error: Incorrect connection string.");
+        config["ConnectionString"] = connString;
     }
 
     builder.Services.AddDbContext<ConsoleOrderExecutorDbContext>();
@@ -41,6 +46,18 @@ try
         await host.StartAsync();
         using IServiceScope serviceScope = host.Services.CreateScope();
         IServiceProvider serviceProvider = serviceScope.ServiceProvider;
+
+        // Check db connection
+        var dbContext = serviceProvider.GetRequiredService<ConsoleOrderExecutorDbContext>();
+        var canConnect = await dbContext.Database.CanConnectAsync();
+        if (!canConnect)
+        {
+            Console.WriteLine("Could not connect to database.");
+            Console.WriteLine("Exiting the application...");
+            await host.StopAsync();
+            return;
+        }
+        // end checking
         IConsoleFunctions? consoleFunctions = serviceProvider.GetService<IConsoleFunctions>() ?? throw new Exception("Could not load the console functions.");
         IConsoleUtils? consoleUtils = serviceProvider.GetService<IConsoleUtils>() ?? throw new Exception("Could not load the console utils.");
 
